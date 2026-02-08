@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpine Messenger - Личный кабинет</title>
+
+     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cream: #f8f4f0;       
+            --snow: #e8eef5;         
+            --mountain: #6D819A;     
+            --dark: #2E3338;        
+            --wood: #8A5E3C;      
+            --frost: rgba(109, 129, 154, 0.05);
+            --shadow: rgba(46, 51, 56, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--cream), var(--snow));
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Кривые горы на фоне */
+        .mountain-bg {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            opacity: 0.08;
+        }
+
+        .mountain-curve {
+            position: absolute;
+            bottom: 0;
+            width: 300px;
+            height: 300px;
+            border-radius: 60% 40% 0 60%;
+            background: var(--mountain);
+            filter: blur(10px);
+        }
+
+        .mountain-curve:nth-child(1) {
+            bottom: 10%;
+            left: 10%;
+            width: 400px;
+            height: 400px;
+            border-radius: 70% 30% 0 70%;
+            transform: rotate(10deg);
+        }
+
+        .mountain-curve:nth-child(2) {
+            bottom: 30%;
+            left: 30%;
+            width: 350px;
+            height: 350px;
+            border-radius: 40% 60% 0 40%;
+            transform: rotate(-15deg);
+        }
+
+        .mountain-curve:nth-child(3) {
+            bottom: 50%;
+            left: 50%;
+            width: 280px;
+            height: 280px;
+            border-radius: 50% 50% 0 50%;
+            transform: rotate(25deg);
+        }
+
+        .mountain-curve:nth-child(4) {
+            bottom: 20%;
+            left: 70%;
+            width: 320px;
+            height: 320px;
+            border-radius: 30% 70% 0 30%;
+            transform: rotate(-10deg);
+        }
+
+        .mountain-curve:nth-child(5) {
+            bottom: 60%;
+            left: 20%;
+            width: 250px;
+            height: 250px;
+            border-radius: 65% 35% 0 65%;
+            transform: rotate(18deg);
+        }
+
+        /* Основной контейнер */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Боковое меню */
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid var(--snow);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px var(--shadow);
+            z-index: 20;
+        }
+
+        .logo-section {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--snow);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--wood);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            background: linear-gradient(90deg, var(--mountain), var(--wood));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .menu-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: var(--frost);
+            color: var(--wood);
+        }
+
+        .menu-item.active {
+            background: var(--frost);
+            color: var(--wood);
+            border-left-color: var(--wood);
+        }
+
+        .menu-item i {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: var(--snow);
+            margin: 15px 20px;
+        }
+
+        .menu-title {
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--mountain);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Основной контент */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        /* Профиль */
+        .profile-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px var(--shadow);
+            border: 1px solid var(--snow);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--snow);
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--wood), var(--mountain));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(138, 94, 60, 0.3);
+            border: 4px solid white;
+        }
+
+        .profile-info h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: var(--mountain);
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--wood);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--mountain);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Информация профиля (3 элемента) */
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .detail-card {
+            background: var(--frost);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid var(--snow);
+        }
+
+        .detail-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow);
+            background: white;
+        }
+
+        .detail-icon {
+            font-size: 32px;
+            color: var(--wood);
+            margin-bottom: 12px;
+        }
+
+        .detail-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--mountain);
+        }
+
+        /* Создание поста */
+        .create-post {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px var(--shadow);
+            border: 1px solid var(--snow);
+        }
+
+        .create-post-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .create-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--wood), var(--mountain));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .post-input-container {
+            position: relative;
+        }
+
+        .post-input {
+            width: 100%;
+            padding: 15px 20px 60px;
+            border: 1px solid var(--snow);
+            border-radius: 15px;
+            background: var(--frost);
+            color: var(--dark);
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .post-input:focus {
+            border-color: var(--mountain);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(109, 129, 154, 0.1);
+        }
+
+        .post-input::placeholder {
+            color: var(--mountain);
+            opacity: 0.7;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--snow);
+        }
+
+        .post-tools {
+            display: flex;
+            gap: 15px;
+        }
+
+        .post-tool {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--mountain);
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .post-tool:hover {
+            color: var(--wood);
+        }
+
+        .post-tool i {
+            font-size: 18px;
+        }
+
+        .post-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--wood), #a07a52);
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(138, 94, 60, 0.3);
+        }
+
+        .post-btn:hover {
+            background: linear-gradient(135deg, #9a6a45, #b08a60);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(138, 94, 60, 0.4);
+        }
+
+        .post-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Список постов */
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px var(--shadow);
+            border: 1px solid var(--snow);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--snow);
+        }
+
+        .post-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--wood), var(--mountain));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .post-user {
+            flex: 1;
+        }
+
+        .post-username {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 3px;
+        }
+
+        .post-time {
+            font-size: 13px;
+            color: var(--mountain);
+        }
+
+        .post-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--dark);
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--snow);
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 25px;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--mountain);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .post-action:hover {
+            color: var(--wood);
+        }
+
+        .post-action i {
+            font-size: 18px;
+        }
+
+        .post-action.like.active {
+            color: var(--wood);
+        }
+
+        /* Медиа запросы */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content {
+                margin-left: 220px;
+            }
+            
+            .profile-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                margin-bottom: 20px;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .profile-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .mountain-bg {
+                display: none;
+            }
+        }
+
+        /* Снежинка */
+        .snowflake-icon {
+            position: relative;
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+        }
+
+        .snowflake-icon::before {
+            content: '❄';
+            position: absolute;
+            font-size: 20px;
+            animation: snowflakeSpin 6s linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes snowflakeSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+    </style>
+   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="mountain-bg">
+        <div class="mountain-curve"></div>
+        <div class="mountain-curve"></div>
+        <div class="mountain-curve"></div>
+        <div class="mountain-curve"></div>
+        <div class="mountain-curve"></div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Боковое меню -->
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="snowflake-icon"></div>
+                    <span>WinterChat</span>
+                </div>
+            </div>
+
+            <div class="menu-title">ОСНОВНОЕ</div>
+            <div class="menu-item active" data-page="profile">
+                <i class="fas fa-home"></i>
+                <span>Личный кабинет</span>
+            </div>
+            <div class="menu-item" data-page="friends">
+                <i class="fas fa-users"></i>
+                <span>Друзья</span>
+            </div>
+            <div class="menu-item" data-page="chats">
+                <i class="fas fa-comments"></i>
+                <span>Чаты</span>
+            </div>
+
+            <div class="menu-divider"></div>
+
+            <div class="menu-title">НАСТРОЙКИ</div>
+            <div class="menu-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span>Настройки</span>
+            </div>
+            <div class="menu-item" data-page="profile-edit">
+                <i class="fas fa-user-edit"></i>
+                <span>Редактировать профиль</span>
+            </div>
+            <div class="menu-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Выйти</span>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="main-content">
+            <!-- Профиль -->
+            <div class="profile-section">
+                <div class="profile-header">
+                    <div class="avatar" id="profileAvatar">A</div>
+                    <div class="profile-info">
+                        <h1 id="profileName">Загрузка...</h1>
+                        <p id="profileStatus">Загрузка статуса...</p>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="friendsCount">0</div>
+                                <div class="stat-label">Друзья</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="postsCount">0</div>
+                                <div class="stat-label">Посты</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="followersCount">0</div>
+                                <div class="stat-label">Подписчики</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Информация профиля (3 элемента) -->
+                <div class="profile-details">
+                    <div class="detail-card">
+                        <div class="detail-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="detail-title">Местоположение</div>
+                        <div class="detail-value" id="location">Загрузка...</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">
+                            <i class="fas fa-birthday-cake"></i>
+                        </div>
+                        <div class="detail-title">Дата рождения</div>
+                        <div class="detail-value" id="birthday">Загрузка...</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="detail-title">Работа</div>
+                        <div class="detail-value" id="work">Загрузка...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Создание поста -->
+            <div class="create-post">
+                <div class="create-post-header">
+                    <div class="create-avatar">A</div>
+                    <div style="flex: 1;">
+                        <textarea 
+                            class="post-input" 
+                            id="newPostText" 
+                            placeholder="Что у вас нового? Расскажите о своих зимних приключениях... ❄️"
+                            rows="3"
+                        ></textarea>
+                    </div>
+                </div>
+                <div class="post-actions">
+                    <div class="post-tools">
+                        <div class="post-tool" onclick="addPhoto()">
+                            <i class="fas fa-image"></i>
+                            <span>Фото</span>
+                        </div>
+                        <div class="post-tool" onclick="addVideo()">
+                            <i class="fas fa-video"></i>
+                            <span>Видео</span>
+                        </div>
+                        <div class="post-tool" onclick="addLocation()">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Место</span>
+                        </div>
+                    </div>
+                    <button class="post-btn" onclick="createPost()">
+                        <i class="fas fa-paper-plane"></i> Опубликовать
+                    </button>
+                </div>
+            </div>
+
+            <!-- Список постов -->
+            <div class="posts-container" id="postsContainer">
+                <div style="text-align: center; color: var(--mountain); padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
+                    <div>Загрузка постов...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== ФУНКЦИИ ЗАГРУЗКИ ДАННЫХ ====================
+
+        // Загрузка данных профиля с сервера
+        async function loadProfileData() {
+            try {
+                // ЗАМЕНИТЬ НА ВАШ АДРЕС СЕРВЕРА:
+                const response = await fetch('http://localhost:8082/api/dashboard');
+                const data = await response.json();
+                
+                displayProfileData(data.user);
+            } catch (error) {
+                console.error('Ошибка загрузки профиля:', error);
+                alert('Не удалось загрузить данные профиля');
+            }
+        }
+
+        // Отображение данных профиля
+        function displayProfileData(user) {
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileStatus').textContent = user.status;
+            document.getElementById('profileAvatar').textContent = user.avatar;
+            
+            // Опционально: изменить цвет аватарки
+            if (user.avatarColor) {
+                document.getElementById('profileAvatar').style.background = 
+                    `linear-gradient(135deg, ${user.avatarColor}, ${user.avatarColor2 || user.avatarColor})`;
+            }
+            
+            document.getElementById('friendsCount').textContent = user.stats.friends;
+            document.getElementById('postsCount').textContent = user.stats.posts;
+            document.getElementById('followersCount').textContent = user.stats.followers;
+            
+            document.getElementById('location').textContent = user.info.location;
+            document.getElementById('birthday').textContent = user.info.birthday;
+            document.getElementById('work').textContent = user.info.work;
+        }
+
+        // Загрузка постов с сервера
+        async function loadPosts() {
+            try {
+                // ЗАМЕНИТЬ НА ВАШ АДРЕС СЕРВЕРА:
+                const response = await fetch('http://localhost:3000/api/posts');
+                const data = await response.json();
+                
+                displayPosts(data.posts);
+            } catch (error) {
+                console.error('Ошибка загрузки постов:', error);
+                alert('Не удалось загрузить посты');
+            }
+        }
+
+        // Отображение постов
+        function displayPosts(posts) {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = '';
+            
+            if (posts.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--mountain); padding: 40px;">Пока нет постов</div>';
+                return;
+            }
+            
+            posts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.className = 'post-card';
+                postElement.dataset.postId = post.id;
+                
+                // Определяем первую букву имени для аватарки
+                const avatarLetter = post.username ? post.username.charAt(0) : 'A';
+                
+                postElement.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-avatar">${avatarLetter}</div>
+                        <div class="post-user">
+                            <div class="post-username">${post.username}</div>
+                            <div class="post-time">${post.time}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-footer">
+                        <div class="post-actions">
+                            <div class="post-action like ${post.liked ? 'active' : ''}" onclick="toggleLike(${post.id}, this)">
+                                <i class="fas fa-heart"></i>
+                                <span>${post.likes}</span>
+                            </div>
+                            <div class="post-action" onclick="showComments(${post.id})">
+                                <i class="fas fa-comment"></i>
+                                <span>${post.comments}</span>
+                            </div>
+                            <div class="post-action" onclick="sharePost(${post.id})">
+                                <i class="fas fa-share"></i>
+                                <span>${post.shares}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(postElement);
+            });
+        }
+
+        // ==================== ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ ====================
+
+        // Создание нового поста
+        async function createPost() {
+            const textarea = document.getElementById('newPostText');
+            const content = textarea.value.trim();
+            
+            if (!content) {
+                alert('Пожалуйста, напишите что-нибудь');
+                return;
+            }
+            
+            const postBtn = event.currentTarget;
+            const originalText = postBtn.innerHTML;
+            postBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Публикация...';
+            postBtn.disabled = true;
+            
+            try {
+                // ЗАМЕНИТЬ НА ВАШ АДРЕС СЕРВЕРА:
+                const response = await fetch('http://localhost:3000/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        // Добавьте другие поля, которые нужны вашему серверу
+                        // например: userId, attachments и т.д.
+                    })
+                });
+                
+                const newPost = await response.json();
+                
+                // Добавляем новый пост в начало списка
+                const postsContainer = document.getElementById('postsContainer');
+                const firstPost = postsContainer.firstChild;
+                
+                const newPostElement = document.createElement('div');
+                newPostElement.className = 'post-card';
+                newPostElement.style.opacity = '0';
+                newPostElement.style.transform = 'translateY(20px)';
+                newPostElement.dataset.postId = newPost.id;
+                
+                const avatarLetter = newPost.username ? newPost.username.charAt(0) : 'A';
+                
+                newPostElement.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-avatar">${avatarLetter}</div>
+                        <div class="post-user">
+                            <div class="post-username">${newPost.username}</div>
+                            <div class="post-time">${newPost.time || 'Только что'}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${newPost.content}</div>
+                    <div class="post-footer">
+                        <div class="post-actions">
+                            <div class="post-action like" onclick="toggleLike(${newPost.id}, this)">
+                                <i class="fas fa-heart"></i>
+                                <span>${newPost.likes || 0}</span>
+                            </div>
+                            <div class="post-action" onclick="showComments(${newPost.id})">
+                                <i class="fas fa-comment"></i>
+                                <span>${newPost.comments || 0}</span>
+                            </div>
+                            <div class="post-action" onclick="sharePost(${newPost.id})">
+                                <i class="fas fa-share"></i>
+                                <span>${newPost.shares || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                if (firstPost) {
+                    postsContainer.insertBefore(newPostElement, firstPost);
+                } else {
+                    postsContainer.appendChild(newPostElement);
+                }
+                
+                // Анимация появления
+                setTimeout(() => {
+                    newPostElement.style.transition = 'all 0.5s ease';
+                    newPostElement.style.opacity = '1';
+                    newPostElement.style.transform = 'translateY(0)';
+                }, 10);
+                
+                // Очищаем поле ввода
+                textarea.value = '';
+                
+                // Обновляем счётчик постов
+                const postsCountEl = document.getElementById('postsCount');
+                postsCountEl.textContent = parseInt(postsCountEl.textContent) + 1;
+                
+                alert('✅ Пост успешно опубликован!');
+                
+            } catch (error) {
+                console.error('Ошибка публикации:', error);
+                alert('Не удалось опубликовать пост');
+            } finally {
+                postBtn.innerHTML = originalText;
+                postBtn.disabled = false;
+            }
+        }
+
+        // Лайк поста
+        async function toggleLike(postId, element) {
+            const isLiked = element.classList.contains('active');
+            const countElement = element.querySelector('span');
+            let count = parseInt(countElement.textContent);
+            
+            if (isLiked) {
+                count--;
+                element.classList.remove('active');
+            } else {
+                count++;
+                element.classList.add('active');
+            }
+            
+            countElement.textContent = count;
+            
+            // ЗАМЕНИТЬ НА ВАШ АДРЕС СЕРВЕРА:
+            try {
+                await fetch(`http://localhost:3000/api/posts/${postId}/like`, {
+                    method: isLiked ? 'DELETE' : 'POST'
+                });
+            } catch (error) {
+                console.error('Ошибка лайка:', error);
+                // Возвращаем обратно, если ошибка
+                countElement.textContent = isLiked ? count + 1 : count - 1;
+                element.classList.toggle('active');
+            }
+        }
+
+        // Показать комментарии
+        function showComments(postId) {
+            alert(`💬 Показать комментарии к посту #${postId}\n\n(Эта функция будет реализована позже)`);
+        }
+
+        // Поделиться постом
+        function sharePost(postId) {
+            alert(`📤 Поделиться постом #${postId}\n\n(Эта функция будет реализована позже)`);
+        }
+
+        // Добавить фото
+        function addPhoto() {
+            alert('📷 Добавить фото к посту');
+        }
+
+        // Добавить видео
+        function addVideo() {
+            alert('🎥 Добавить видео к посту');
+        }
+
+        // Добавить местоположение
+        function addLocation() {
+            alert('📍 Добавить местоположение к посту');
+        }
+
+        // Выйти из аккаунта
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти из аккаунта?')) {
+                // Очистить данные сессии (токен и т.д.)
+                localStorage.removeItem('authToken');
+                // Перенаправить на страницу логина
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Переключение страниц в меню
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                const page = this.dataset.page;
+                console.log(`Переключение на страницу: ${page}`);
+                
+                // Здесь можно добавить логику переключения контента
+                // или перенаправление на другие страницы
+            });
+        });
+
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+
+        // Загрузка данных при загрузке страницы
+        window.onload = function() {
+            loadProfileData();
+            loadPosts();
+            
+            // Добавляем обработчик для клавиши Enter в поле поста
+            document.getElementById('newPostText').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    createPost();
+                }
+            });
+        };
+    </script>
+</body>
+</html>

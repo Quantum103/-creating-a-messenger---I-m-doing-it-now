@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpine Messenger - Вход</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark: #2E3338;      /* Тёмный фон */
+            --mountain: #6D819A;  /* Серо-голубой (горы) */
+            --wood: #8A5E3C;      /* Коричневый (дерево) */
+            --frost: rgba(109, 129, 154, 0.1);
+            --snow: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark), #1a1d21);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Снег */
+        .snow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .snowflake {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* Горы */
+        .mountains {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-left: 220px solid transparent;
+            border-right: 220px solid transparent;
+            border-bottom: 450px solid var(--mountain);
+            filter: blur(3px);
+            opacity: 0.6;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .mountain:nth-child(1) {
+            left: 5%;
+            animation-delay: 0s;
+            transform: scale(1.1);
+        }
+
+        .mountain:nth-child(2) {
+            left: 35%;
+            animation-delay: 3s;
+            transform: scale(0.85);
+        }
+
+        .mountain:nth-child(3) {
+            left: 65%;
+            animation-delay: 6s;
+            transform: scale(1.2);
+        }
+
+        .mountain:nth-child(4) {
+            left: 90%;
+            animation-delay: 9s;
+            transform: scale(0.9);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(var(--scale)); }
+            50% { transform: translateY(-25px) scale(var(--scale)); }
+        }
+
+        /* Форма логина */
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(145deg, var(--dark), #25282c);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6),
+                        0 0 15px rgba(109, 129, 154, 0.3);
+            border: 1px solid var(--mountain);
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .login-header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--mountain), var(--wood));
+            border-radius: 3px;
+        }
+
+        .logo {
+            font-size: 38px;
+            margin-bottom: 12px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(109, 129, 154, 0.4);
+            animation: snowflakeFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes snowflakeFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(8deg); }
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            background: linear-gradient(90deg, var(--mountain), #a0b0c5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--mountain);
+            font-size: 14px;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #cbd0d8;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--mountain);
+            border-radius: 14px;
+            background: var(--frost);
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: rgba(109, 129, 154, 0.15);
+            border-color: #a0b0c5;
+            box-shadow: 0 0 0 3px rgba(109, 129, 154, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: var(--mountain);
+            opacity: 0.7;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            background: var(--frost);
+            border: 1px solid var(--mountain);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox.checked {
+            background: var(--wood);
+            border-color: var(--wood);
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .forgot-password {
+            color: var(--mountain);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 13px;
+        }
+
+        .forgot-password:hover {
+            color: #a0b0c5;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--wood), #a07a52);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(138, 94, 60, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(135deg, #9a6a45, #b08a60);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(138, 94, 60, 0.6);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 28px 0;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--mountain);
+            opacity: 0.5;
+        }
+
+        .divider-text {
+            color: var(--mountain);
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .social-login {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 13px;
+            border-radius: 14px;
+            border: 1px solid var(--mountain);
+            background: var(--frost);
+            color: #cbd0d8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .social-btn:hover {
+            background: rgba(109, 129, 154, 0.2);
+            color: white;
+            transform: translateY(-2px);
+            border-color: #a0b0c5;
+        }
+
+        .social-btn i {
+            font-size: 20px;
+            width: 22px;
+            text-align: center;
+        }
+
+        .snowflake-deco {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .snowflake-deco:nth-child(1) {
+            top: 20px;
+            left: 30px;
+            animation-delay: 0s;
+        }
+
+        .snowflake-deco:nth-child(2) {
+            bottom: 40px;
+            right: 40px;
+            animation-delay: 3s;
+            font-size: 24px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(15deg); }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                max-width: 95%;
+                padding: 30px 20px;
+                margin: 15px;
+            }
+            
+            .logo {
+                font-size: 32px;
+            }
+            
+            .logo-text {
+                font-size: 24px;
+            }
+            
+            .mountain {
+                border-left: 140px solid transparent;
+                border-right: 140px solid transparent;
+                border-bottom: 280px solid var(--mountain);
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="snow" id="snow"></div>
+    <div class="mountains">
+        <div class="mountain" style="--scale: 1.1"></div>
+        <div class="mountain" style="--scale: 0.85"></div>
+        <div class="mountain" style="--scale: 1.2"></div>
+        <div class="mountain" style="--scale: 0.9"></div>
+    </div>
+
+    <div class="login-container">
+        <div style="position: relative; z-index: 2;">
+            <div class="snowflake-deco">❄</div>
+            <div class="snowflake-deco">❄</div>
+        </div>
+        
+        <div class="login-header">
+            <div class="logo">🏔️</div>
+            <div class="logo-text">WINTERCHAT</div>
+            <div class="subtitle">Ваш зимний горный мессенджер</div>
+        </div>
+
+<form id="loginForm">            
+    <div class="form-group">
+                <label for="username">ЛОГИН ИЛИ EMAIL</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    class="form-control" 
+                    placeholder="ваш_логин или email@example.com"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">ПАРОЛЬ</label>
+                <div style="position: relative;">
+                    <input type="password" id="password" class="form-control"  placeholder="••••••••••••••••" required>
+                    <button 
+                        type="button" 
+                        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--mountain); cursor: pointer; font-size: 16px; opacity: 0.8;"
+                        onclick="togglePassword()"
+                    >
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="remember-forgot">
+                <div class="remember-me" onclick="toggleRemember()">
+                    <div class="checkbox" id="rememberCheckbox"></div>
+                    <span style="color: var(--mountain); font-size: 13px; letter-spacing: 0.3px;">ЗАПОМНИТЬ МЕНЯ</span>
+                </div>
+                <a href="#" class="forgot-password" onclick="forgotPassword(event)">ЗАБЫЛИ ПАРОЛЬ?</a>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginButton">
+                ВОЙТИ В АККАУНТ
+            </button>
+        </form>
+
+        <div class="divider">
+            <span class="divider-text">ИЛИ ВОЙТИ ЧЕРЕЗ</span>
+        </div>
+
+        <div class="social-login">
+            <button class="social-btn" onclick="socialLogin('Google')">
+                <i class="fab fa-google"></i>
+                GOOGLE
+            </button>
+            <button class="social-btn" onclick="socialLogin('Facebook')">
+                <i class="fab fa-facebook-f"></i>
+                FACEBOOK
+            </button>
+            <button class="social-btn" onclick="socialLogin('Apple')">
+                <i class="fab fa-apple"></i>
+                APPLE
+            </button>
+        </div>
+    </div>
+
+<script>
+    // ========================================
+    // СОЗДАНИЕ СНЕЖИНОК
+    // ========================================
+    function createSnowflakes() {
+        const snowContainer = document.getElementById('snow');
+        const snowflakeCount = 50;
+        
+        for (let i = 0; i < snowflakeCount; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            
+            const size = Math.random() * 4 + 2;
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+            
+            snowflake.style.left = `${Math.random() * 100}%`;
+            snowflake.style.top = `${Math.random() * 100}%`;
+            
+            const duration = Math.random() * 12 + 6;
+            snowflake.style.animationDuration = `${duration}s`;
+            
+            const delay = Math.random() * 5;
+            snowflake.style.animationDelay = `${delay}s`;
+            
+            snowContainer.appendChild(snowflake);
+        }
+    }
+
+    // ========================================
+    // ПОКАЗАТЬ/СКРЫТЬ ПАРОЛЬ
+    // ========================================
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const button = event.currentTarget;
+        const icon = button.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    }
+
+    // ========================================
+    // ЧЕКБОКС "ЗАПОМНИТЬ МЕНЯ"
+    // ========================================
+    function toggleRemember() {
+        const checkbox = document.getElementById('rememberCheckbox');
+        checkbox.classList.toggle('checked');
+    }
+
+    // ========================================
+    // ЗАБЫЛИ ПАРОЛЬ
+    // ========================================
+    function forgotPassword(e) {
+        e.preventDefault();
+        alert('Функция восстановления пароля будет доступна позже.');
+    }
+
+    // ========================================
+    // СОЦИАЛЬНЫЙ ВХОД
+    // ========================================
+    function socialLogin(provider) {
+        alert(`Вход через ${provider} пока не реализован.`);
+    }
+
+    // ========================================
+    // ОБРАБОТКА ОТПРАВКИ ФОРМЫ 
+    // ========================================
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        console.log('🚀 Форма отправлена');
+        
+        // Собираем данные формы
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+
+        console.log('📧 Username (до валидации):', username);
+        console.log('🔒 Password length (до валидации):', password.length);
+        console.log('🔒 Password (до валидации):', password);
+
+        // Валидация на клиенте
+        if (!username) {
+            alert('⚠️ Пожалуйста, введите логин или email');
+            return;
+        }
+        
+        if (!password) {
+            alert('⚠️ Пожалуйста, введите пароль');
+            return;
+        }
+        
+        if (password.length < 4) {
+            alert('⚠️ Пароль должен быть не менее 4 символов');
+            return;
+        }
+
+        // Визуальная обратная связь
+        const btn = document.getElementById('loginButton');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '❄ Выполняется вход...';
+        btn.disabled = true;
+
+        try {
+            // Определяем, это email или username
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const isEmail = emailRegex.test(username);
+            
+            // Формируем данные для отправки
+        const formData = {
+            identifier: username,
+            password: password
+            };
+
+            console.log('📤 Отправляем данные на сервер:', formData);
+            console.log('📤 JSON строка:', JSON.stringify(formData));
+
+            // Отправляем запрос
+            const response = await fetch('http://localhost:8080/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            console.log('📥 Ответ от сервера - статус:', response.status);
+            console.log('📥 Ответ от сервера - headers:', Object.fromEntries(response.headers.entries()));
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ Текст ошибки от сервера:', errorText);
+                
+                let errorMessage = `Ошибка ${response.status}`;
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = errorData.message || errorMessage;
+                } catch (e) {
+                    // Если не JSON, используем текст как есть
+                    errorMessage = errorText || errorMessage;
+                }
+                
+                throw new Error(errorMessage);
+            }
+
+            const result = await response.json();
+            console.log('✅ Успешный ответ:', result);
+            
+            //  УСПЕШНАЯ АВТОРИЗАЦИЯ
+            if (result.token) {
+                console.log('🔑 Токен получен, сохраняем в localStorage');
+                localStorage.setItem('auth_token', result.token);
+                
+                btn.innerHTML = '✓ Успешно!';
+                
+                // Редирект через 1 секунду
+                setTimeout(() => {
+                    console.log('🔄 Редирект на dashboard.html');
+                    window.location.href = '/dashboard.html';
+                }, 1000);
+            } else {
+                throw new Error('Сервер не вернул токен');
+            }
+
+        } catch (error) {
+            //  ОШИБКА
+            console.error(' Ошибка входа:', error);
+            console.error(' Стек ошибки:', error.stack);
+            alert(` Ошибка входа: ${error.message}`);
+            
+            // Восстанавливаем кнопку
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 2000);
+        }
+    });
+
+    // ========================================
+    // ИНИЦИАЛИЗАЦИЯ
+    // ========================================
+    window.onload = () => {
+        console.log('🏠 Страница загружена');
+        createSnowflakes();
+        
+        // Enter для отправки формы
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                console.log('⏎ Enter нажат, отправляем форму');
+                document.getElementById('loginForm').requestSubmit();
+            }
+        });
+    };
+</script>
+</body>
+</html>
