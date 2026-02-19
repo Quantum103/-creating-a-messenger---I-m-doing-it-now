@@ -439,12 +439,12 @@
 
 <form id="loginForm">            
     <div class="form-group">
-                <label for="username">ЛОГИН ИЛИ EMAIL</label>
+                <label for="username">Email</label>
                 <input 
                     type="text" 
                     id="username" 
                     class="form-control" 
-                    placeholder="ваш_логин или email@example.com"
+                    placeholder="email@example.com"
                     required
                 >
             </div>
@@ -656,9 +656,8 @@
                 console.log('🔑 Токен получен, сохраняем в localStorage');
                 localStorage.setItem('auth_token', result.token);
                 
-                btn.innerHTML = '✓ Успешно!';
+                btn.innerHTML = 'Успешно!';
                 
-                // Редирект через 1 секунду
                 setTimeout(() => {
                     console.log('🔄 Редирект на dashboard.html');
                     window.location.href = '/dashboard.html';

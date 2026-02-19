@@ -108,11 +108,10 @@ type UserLogin struct {
 
 func HandlerLogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("📥 Начало обработки логина")
 
 		// Проверка метода
 		if r.Method != http.MethodPost {
-			log.Println("❌ Неправильный метод запроса")
+			log.Println(" Неправильный метод запроса")
 			http.Error(w, "Метод не разрешён", http.StatusMethodNotAllowed)
 			return
 		}
@@ -123,28 +122,24 @@ func HandlerLogin(db *sql.DB) http.HandlerFunc {
 		// Чтение всего тела запроса для отладки
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			log.Printf("❌ Ошибка чтения тела запроса: %v", err)
+			log.Printf(" Ошибка чтения тела запроса: %v", err)
 			http.Error(w, "Ошибка чтения запроса", http.StatusBadRequest)
 			return
 		}
 
-		log.Printf("📄 Тело запроса: %s", string(body))
+		log.Printf("Тело запроса: %s", string(body))
 
 		// Парсим JSON
 		var req UserLogin
 		if err := json.Unmarshal(body, &req); err != nil {
-			log.Printf("❌ Ошибка парсинга JSON: %v", err)
+			log.Printf(" Ошибка парсинга JSON: %v", err)
 			http.Error(w, "Неверный формат JSON", http.StatusBadRequest)
 			return
 		}
 
-		log.Printf("📧 Email из JSON: '%s'", req.Identifier)
-		log.Printf("🔒 Длина пароля из JSON: %d", len(req.Password))
-		log.Printf("🔒 Пароль из JSON: '%s'", req.Password)
-
 		// Валидация
 		if req.Identifier == "" || req.Password == "" || len(req.Password) < 4 {
-			log.Println("❌ Ошибка валидации: пустые поля или короткий пароль")
+			log.Println(" Ошибка валидации: пустые поля или короткий пароль")
 			http.Error(w, "Введите корректные данные", http.StatusBadRequest)
 			return
 		}
@@ -162,27 +157,27 @@ func HandlerLogin(db *sql.DB) http.HandlerFunc {
 `, req.Identifier, req.Identifier).Scan(&userId, &realEmail, &realUsername, &storPassHash)
 
 		if err == sql.ErrNoRows {
-			log.Printf("❌ Пользователь не найден: %s", req.Identifier)
+			log.Printf(" Пользователь не найден: %s", req.Identifier)
 			http.Error(w, "Неверный логин или пароль", http.StatusUnauthorized)
 			return
 		}
 
 		if err != nil {
-			log.Printf("❌ Ошибка БД: %v", err)
+			log.Printf(" Ошибка БД: %v", err)
 			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 			return
 		}
 
-		log.Printf("✅ Пользователь найден: id=%d", userId)
+		log.Printf(" Пользователь найден: id=%d", userId)
 
 		// Проверяем пароль
 		if err := bcrypt.CompareHashAndPassword([]byte(storPassHash), []byte(req.Password)); err != nil {
-			log.Printf("❌ Пароли не совпадают: %v", err)
+			log.Printf(" Пароли не совпадают: %v", err)
 			http.Error(w, "Неверный логин или пароль", http.StatusUnauthorized)
 			return
 		}
 
-		log.Println("✅ Пароль верный")
+		log.Println("Пароль верный")
 
 		// Генерируем токен
 		claims := jwt.MapClaims{
@@ -191,22 +186,23 @@ func HandlerLogin(db *sql.DB) http.HandlerFunc {
 			"username": realUsername,
 			"exp":      time.Now().Add(24 * time.Hour).Unix(),
 		}
+		log.Println(realUsername)
 
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 		tokenString, err := token.SignedString(jwtSecret)
 
 		if err != nil {
-			log.Printf("❌ Ошибка генерации токена: %v", err)
+			log.Printf(" Ошибка генерации токена: %v", err)
 			http.Error(w, "Ошибка генерации токена", http.StatusInternalServerError)
 			return
 		}
 
-		log.Println("✅ Токен сгенерирован успешно")
+		log.Println(" Токен сгенерирован успешно")
 
 		// Возвращаем токен
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 
-		log.Println("✅ Ответ отправлен клиенту")
+		log.Println("Ответ отправлен клиенту")
 	}
 }

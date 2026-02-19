@@ -608,7 +608,7 @@
             <div class="logo-section">
                 <div class="logo">
                     <div class="snowflake-icon"></div>
-                    <span>WinterChat</span>
+                    <span>Alpine Messenger</span>
                 </div>
             </div>
 
@@ -696,14 +696,15 @@
             </div>
 
             <!-- Создание поста -->
-            <div class="create-post">
+            <form id="createPost">
+                <div class="create-post">
                 <div class="create-post-header">
                     <div class="create-avatar">A</div>
                     <div style="flex: 1;">
                         <textarea 
                             class="post-input" 
                             id="newPostText" 
-                            placeholder="Что у вас нового? Расскажите о своих зимних приключениях... ❄️"
+                            placeholder="Что у вас нового? Расскажите о своих приключениях"
                             rows="3"
                         ></textarea>
                     </div>
@@ -723,12 +724,12 @@
                             <span>Место</span>
                         </div>
                     </div>
-                    <button class="post-btn" onclick="createPost()">
+                    <button class="post-btn" type="submit">
                         <i class="fas fa-paper-plane"></i> Опубликовать
                     </button>
                 </div>
             </div>
-
+            </form>
             <!-- Список постов -->
             <div class="posts-container" id="postsContainer">
                 <div style="text-align: center; color: var(--mountain); padding: 40px;">
@@ -739,303 +740,183 @@
         </div>
     </div>
 
-    <script>
-        // ==================== ФУНКЦИИ ЗАГРУЗКИ ДАННЫХ ====================
-
-        // Загрузка данных профиля с сервера
-        async function loadProfileData() {
-            try {
-                // ЗАМЕНИТЬ НА ВАШ АДРЕС СЕРВЕРА:
-                const response = await fetch('http://localhost:8082/api/dashboard');
-                const data = await response.json();
-                
-                displayProfileData(data.user);
-            } catch (error) {
-                console.error('Ошибка загрузки профиля:', error);
-                alert('Не удалось загрузить данные профиля');
-            }
-        }
-
-        // Отображение данных профиля
-        function displayProfileData(user) {
-            document.getElementById('profileName').textContent = user.name;
-            document.getElementById('profileStatus').textContent = user.status;
-            document.getElementById('profileAvatar').textContent = user.avatar;
-            
-            // Опционально: изменить цвет аватарки
-            if (user.avatarColor) {
-                document.getElementById('profileAvatar').style.background = 
-                    `linear-gradient(135deg, ${user.avatarColor}, ${user.avatarColor2 || user.avatarColor})`;
-            }
-            
-            document.getElementById('friendsCount').textContent = user.stats.friends;
-            document.getElementById('postsCount').textContent = user.stats.posts;
-            document.getElementById('followersCount').textContent = user.stats.followers;
-            
-            document.getElementById('location').textContent = user.info.location;
-            document.getElementById('birthday').textContent = user.info.birthday;
-            document.getElementById('work').textContent = user.info.work;
-        }
-
-        // Загрузка постов с сервера
-        async function loadPosts() {
-            try {
-                // ЗАМЕНИТЬ НА ВАШ АДРЕС СЕРВЕРА:
-                const response = await fetch('http://localhost:3000/api/posts');
-                const data = await response.json();
-                
-                displayPosts(data.posts);
-            } catch (error) {
-                console.error('Ошибка загрузки постов:', error);
-                alert('Не удалось загрузить посты');
-            }
-        }
-
-        // Отображение постов
-        function displayPosts(posts) {
-            const container = document.getElementById('postsContainer');
-            container.innerHTML = '';
-            
-            if (posts.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--mountain); padding: 40px;">Пока нет постов</div>';
-                return;
-            }
-            
-            posts.forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.className = 'post-card';
-                postElement.dataset.postId = post.id;
-                
-                // Определяем первую букву имени для аватарки
-                const avatarLetter = post.username ? post.username.charAt(0) : 'A';
-                
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <div class="post-avatar">${avatarLetter}</div>
-                        <div class="post-user">
-                            <div class="post-username">${post.username}</div>
-                            <div class="post-time">${post.time}</div>
-                        </div>
-                    </div>
-                    <div class="post-content">${post.content}</div>
-                    <div class="post-footer">
-                        <div class="post-actions">
-                            <div class="post-action like ${post.liked ? 'active' : ''}" onclick="toggleLike(${post.id}, this)">
-                                <i class="fas fa-heart"></i>
-                                <span>${post.likes}</span>
-                            </div>
-                            <div class="post-action" onclick="showComments(${post.id})">
-                                <i class="fas fa-comment"></i>
-                                <span>${post.comments}</span>
-                            </div>
-                            <div class="post-action" onclick="sharePost(${post.id})">
-                                <i class="fas fa-share"></i>
-                                <span>${post.shares}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                container.appendChild(postElement);
-            });
-        }
-
-        // ==================== ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ ====================
-
-        // Создание нового поста
-        async function createPost() {
-            const textarea = document.getElementById('newPostText');
-            const content = textarea.value.trim();
-            
-            if (!content) {
-                alert('Пожалуйста, напишите что-нибудь');
-                return;
-            }
-            
-            const postBtn = event.currentTarget;
-            const originalText = postBtn.innerHTML;
-            postBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Публикация...';
-            postBtn.disabled = true;
-            
-            try {
-                // ЗАМЕНИТЬ НА ВАШ АДРЕС СЕРВЕРА:
-                const response = await fetch('http://localhost:3000/api/posts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        content: content,
-                        // Добавьте другие поля, которые нужны вашему серверу
-                        // например: userId, attachments и т.д.
-                    })
-                });
-                
-                const newPost = await response.json();
-                
-                // Добавляем новый пост в начало списка
-                const postsContainer = document.getElementById('postsContainer');
-                const firstPost = postsContainer.firstChild;
-                
-                const newPostElement = document.createElement('div');
-                newPostElement.className = 'post-card';
-                newPostElement.style.opacity = '0';
-                newPostElement.style.transform = 'translateY(20px)';
-                newPostElement.dataset.postId = newPost.id;
-                
-                const avatarLetter = newPost.username ? newPost.username.charAt(0) : 'A';
-                
-                newPostElement.innerHTML = `
-                    <div class="post-header">
-                        <div class="post-avatar">${avatarLetter}</div>
-                        <div class="post-user">
-                            <div class="post-username">${newPost.username}</div>
-                            <div class="post-time">${newPost.time || 'Только что'}</div>
-                        </div>
-                    </div>
-                    <div class="post-content">${newPost.content}</div>
-                    <div class="post-footer">
-                        <div class="post-actions">
-                            <div class="post-action like" onclick="toggleLike(${newPost.id}, this)">
-                                <i class="fas fa-heart"></i>
-                                <span>${newPost.likes || 0}</span>
-                            </div>
-                            <div class="post-action" onclick="showComments(${newPost.id})">
-                                <i class="fas fa-comment"></i>
-                                <span>${newPost.comments || 0}</span>
-                            </div>
-                            <div class="post-action" onclick="sharePost(${newPost.id})">
-                                <i class="fas fa-share"></i>
-                                <span>${newPost.shares || 0}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                if (firstPost) {
-                    postsContainer.insertBefore(newPostElement, firstPost);
-                } else {
-                    postsContainer.appendChild(newPostElement);
+<script>
+    // Загрузка профиля
+    async function loadProfileData() {
+        const token = localStorage.getItem('auth_token');
+        
+        try {
+            const response = await fetch('/dashboard', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
-                
-                // Анимация появления
-                setTimeout(() => {
-                    newPostElement.style.transition = 'all 0.5s ease';
-                    newPostElement.style.opacity = '1';
-                    newPostElement.style.transform = 'translateY(0)';
-                }, 10);
-                
-                // Очищаем поле ввода
-                textarea.value = '';
-                
-                // Обновляем счётчик постов
-                const postsCountEl = document.getElementById('postsCount');
-                postsCountEl.textContent = parseInt(postsCountEl.textContent) + 1;
-                
-                alert('✅ Пост успешно опубликован!');
-                
-            } catch (error) {
-                console.error('Ошибка публикации:', error);
-                alert('Не удалось опубликовать пост');
-            } finally {
-                postBtn.innerHTML = originalText;
-                postBtn.disabled = false;
-            }
-        }
-
-        // Лайк поста
-        async function toggleLike(postId, element) {
-            const isLiked = element.classList.contains('active');
-            const countElement = element.querySelector('span');
-            let count = parseInt(countElement.textContent);
-            
-            if (isLiked) {
-                count--;
-                element.classList.remove('active');
-            } else {
-                count++;
-                element.classList.add('active');
-            }
-            
-            countElement.textContent = count;
-            
-            // ЗАМЕНИТЬ НА ВАШ АДРЕС СЕРВЕРА:
-            try {
-                await fetch(`http://localhost:3000/api/posts/${postId}/like`, {
-                    method: isLiked ? 'DELETE' : 'POST'
-                });
-            } catch (error) {
-                console.error('Ошибка лайка:', error);
-                // Возвращаем обратно, если ошибка
-                countElement.textContent = isLiked ? count + 1 : count - 1;
-                element.classList.toggle('active');
-            }
-        }
-
-        // Показать комментарии
-        function showComments(postId) {
-            alert(`💬 Показать комментарии к посту #${postId}\n\n(Эта функция будет реализована позже)`);
-        }
-
-        // Поделиться постом
-        function sharePost(postId) {
-            alert(`📤 Поделиться постом #${postId}\n\n(Эта функция будет реализована позже)`);
-        }
-
-        // Добавить фото
-        function addPhoto() {
-            alert('📷 Добавить фото к посту');
-        }
-
-        // Добавить видео
-        function addVideo() {
-            alert('🎥 Добавить видео к посту');
-        }
-
-        // Добавить местоположение
-        function addLocation() {
-            alert('📍 Добавить местоположение к посту');
-        }
-
-        // Выйти из аккаунта
-        function logout() {
-            if (confirm('Вы уверены, что хотите выйти из аккаунта?')) {
-                // Очистить данные сессии (токен и т.д.)
-                localStorage.removeItem('authToken');
-                // Перенаправить на страницу логина
-                window.location.href = 'login.html';
-            }
-        }
-
-        // Переключение страниц в меню
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-                
-                const page = this.dataset.page;
-                console.log(`Переключение на страницу: ${page}`);
-                
-                // Здесь можно добавить логику переключения контента
-                // или перенаправление на другие страницы
             });
+
+            if (response.status === 401) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            const data = await response.json();
+            
+            document.getElementById('profileName').textContent = data.username || 'Гость';
+            document.getElementById('profileStatus').textContent = data.email || '';
+            document.getElementById('profileAvatar').textContent = 
+                (data.username || 'A').charAt(0).toUpperCase();
+            
+            if (data.location) document.getElementById('location').textContent = data.location;
+            if (data.birthday) document.getElementById('birthday').textContent = data.birthday;
+            if (data.work) document.getElementById('work').textContent = data.work;
+
+        } catch (error) {
+            console.error('Ошибка сети:', error);
+        }
+    }
+
+    // Создание поста
+    document.getElementById('createPost').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const textarea = document.getElementById('newPostText');
+        const text = textarea.value.trim();
+        if (!text) return;
+
+        const token = localStorage.getItem('auth_token');
+        
+        try {
+            const response = await fetch('/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text })
+            });
+
+            if (response.status === 401) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`Ошибка ${response.status}`);
+            }
+
+            textarea.value = '';
+            await loadPosts();            
+        } catch (err) {
+            console.error('Ошибка:', err);
+            alert(`Не удалось опубликовать: ${err.message}`);
+        }
+    });
+
+
+
+async function loadPosts() {
+    const token = localStorage.getItem('auth_token');
+    const container = document.getElementById('postsContainer');
+    
+    try {
+        const response = await fetch('/api/posts', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
 
-        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+        const rawText = await response.text();
 
-        // Загрузка данных при загрузке страницы
-        window.onload = function() {
-            loadProfileData();
-            loadPosts();
-            
-            // Добавляем обработчик для клавиши Enter в поле поста
-            document.getElementById('newPostText').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    createPost();
-                }
-            });
-        };
-    </script>
+        
+        // Пытаемся распарсить
+        const posts = JSON.parse(rawText);
+        
+        if (response.status === 401) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Ошибка ${response.status}`);
+        }
+        
+        container.innerHTML = '';
+
+        if (posts.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; color: var(--mountain); padding: 40px;">
+                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <div>Пока нет постов. Будьте первым! ❄️</div>
+                </div>
+            `;
+            return;
+        }
+
+        posts.forEach(post => {
+            const postHTML = createPostCard(post);
+            container.insertAdjacentHTML('beforeend', postHTML);
+        });
+
+    } catch (error) {
+        console.error(' Ошибка загрузки постов:', error);
+        container.innerHTML = `
+            <div style="text-align: center; color: var(--mountain); padding: 40px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                <div>Не удалось загрузить посты</div>
+            </div>
+        `;
+    }
+}
+
+// Функция создания HTML карточки поста
+function createPostCard(post) {
+    const timeAgo = getTimeAgo(new Date(post.created_at));
+    const avatarLetter = (post.username || 'U').charAt(0).toUpperCase();
+    
+    return `
+        <div class="post-card">
+            <div class="post-header">
+                <div class="post-avatar">${avatarLetter}</div>
+                <div class="post-user">
+                    <div class="post-username">${escapeHtml(post.username || 'Аноним')}</div>
+                    <div class="post-time">${timeAgo}</div>
+                </div>
+            </div>
+            <div class="post-content">${escapeHtml(post.text)}</div>
+            <div class="post-footer">
+                <div class="post-actions">
+                    <div class="post-action like" onclick="toggleLike(${post.id})">
+                        <i class="far fa-heart"></i>
+                        <span>${post.likes || 0}</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="far fa-comment"></i>
+                        <span>${post.comments || 0}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    
+    if (seconds < 60) return 'Только что';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} мин назад`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} час(а) назад`;
+    return `${Math.floor(seconds / 86400)} дн назад`;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    loadProfileData();
+    loadPosts(); 
+});
+    window.addEventListener('DOMContentLoaded', loadProfileData);
+</script>
 </body>
 </html>
