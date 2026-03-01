@@ -69,10 +69,22 @@ func UpdateWork(userID int, location string) error {
 	res, err := db.Exec(query, location, userID)
 	if err != nil {
 		return fmt.Errorf("ошибка обновления места работы: %w", err)
-
 	}
 	rowsAf, _ := res.RowsAffected()
 	if rowsAf == 0 {
+		return fmt.Errorf("пользователь не найден")
+	}
+	return nil
+}
+
+func UpdatePass(userId int, OldPass, NewPass string) error {
+	query := `UPDATE users SET password WHERE id = ?`
+	res, err := db.Exec(query, NewPass, userId)
+	if err != nil {
+		return fmt.Errorf("ошибка обновления пароля: %w", err)
+	}
+	RowsAf, err := res.RowsAffected()
+	if RowsAf == 0 {
 		return fmt.Errorf("пользователь не найден")
 	}
 	return nil

@@ -129,3 +129,30 @@ func UpdateWork(db *sql.DB) http.HandlerFunc {
 		})
 	}
 }
+
+type Password struct {
+	OldPass string `json:"OldPass"`
+	NewPass string `json:"-"`
+}
+
+func UpdatePassword(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID := GetUserID(r)
+		var pass Password
+		if !decodeJSON(w, r, &pass) {
+			return
+		}
+		if pass.OldPass == "" || pass.NewPass == "" {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "Введите и старый и новый пароль",
+			})
+		}
+		err := database.UpdatePass(userID, pass.OldPass, pass.NewPass)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка базы данных"})
+			return
+		}
+	}
+}
