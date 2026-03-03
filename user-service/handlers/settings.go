@@ -132,7 +132,7 @@ func UpdateWork(db *sql.DB) http.HandlerFunc {
 
 type Password struct {
 	OldPass string `json:"OldPass"`
-	NewPass string `json:"-"`
+	NewPass string `json:"NewPass"`
 }
 
 func UpdatePassword(db *sql.DB) http.HandlerFunc {
@@ -147,6 +147,7 @@ func UpdatePassword(db *sql.DB) http.HandlerFunc {
 			json.NewEncoder(w).Encode(map[string]string{
 				"message": "Введите и старый и новый пароль",
 			})
+			return
 		}
 		err := database.UpdatePass(userID, pass.OldPass, pass.NewPass)
 		if err != nil {

@@ -42,6 +42,9 @@ func main() {
 	r.HandleFunc("/change/job", middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		userProxy.ServeHTTP(w, r)
 	})).Methods("POST")
+	r.HandleFunc("/change/Pass", middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		userProxy.ServeHTTP(w, r)
+	})).Methods("POST")
 
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("../frontend/"))))
 

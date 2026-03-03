@@ -30,7 +30,7 @@ func main() {
 	r.HandleFunc("/api/register", handlers.HandleRegister(db)).Methods("POST")
 	r.HandleFunc("/api/login", handlers.HandlerLogin(db)).Methods("POST")
 
-	log.Println("✅ User Service запущен на порту 8081")
+	log.Println(" User Service запущен на порту 8081")
 	log.Fatal(http.ListenAndServe(":8081", r))
 
 }

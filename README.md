@@ -54,7 +54,7 @@ ___
 |-----------|------------|
 | **Язык** | Golang 1.21+ |
 | **БД** | MySQL |
-| **Контейнеризация** | Docker, Docker Compose 🚧(в разработке)| 
+| **Контейнеризация** | Docker, Docker Compose| 
 | **Аутентификация** | JWT, bcrypt | 
 | **Роутинг** | Gorilla Mux|
 
@@ -65,12 +65,10 @@ ___
 ```bash
 # 1. Клонируйте репозиторий
 git clone https://github.com/Quantum103/-creating-a-messenger---I-m-doing-it-now
-cd user-service
-cd api-gateway
-cd auth-service
+cd micro2
 
 
-# 2. Запустите через терминал
-go run main.go 
 
-# Контейнеризация Docker - в разработке,
+# Запустить через Docker
+docker-compose up --build
+
